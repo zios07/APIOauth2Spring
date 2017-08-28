@@ -1,9 +1,10 @@
-package ma.securedapi;
+package ma.demoapp.securedapi;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
@@ -35,7 +36,7 @@ public class Oauh2Config {
 					.scopes("read", "write", "trust")
 					.accessTokenValiditySeconds(5000)
 					.authorizedGrantTypes("authorization_code")
-					.authorities("ROLE_CLIENT", "ROLE_TRUSTED_CLIENT")
+					.authorities("ROLE_CLIENT", "ROLE_TRUSTED_CLIENT","ROLE_ADMIN")
 					.resourceIds("oauth2-resource");
 		}
 
@@ -43,7 +44,7 @@ public class Oauh2Config {
 		public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
 			endpoints.authenticationManager(authenticationManager);
 		}
-
+		
 	}
 
 	@Configuration
@@ -52,13 +53,24 @@ public class Oauh2Config {
 		@Override
 		public void configure(HttpSecurity http) throws Exception {
 			http.authorizeRequests()
-				.antMatchers("/")
+				.antMatchers("/login")
 				.permitAll()
-				.antMatchers("/private")
-				.authenticated();
+				.and()
+				.authorizeRequests()
+				.antMatchers("/private","/private/**")
+				.hasRole("ADMIN")
+				.and()
+				.formLogin()
+				.loginPage("/login")
+				.usernameParameter("username")
+				.passwordParameter("password");
 		}
+		
+		
 	}
 
+	@Configuration
+	@EnableWebSecurity
 	public static class WebSecurity extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
@@ -70,6 +82,7 @@ public class Oauh2Config {
 				.anyRequest()
 				.hasAnyRole("ROLE_CLIENT", "ROLE_TRUSTED_CLIENT");
 		}
+		
 	}
 
 }
