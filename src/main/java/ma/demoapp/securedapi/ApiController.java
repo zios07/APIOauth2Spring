@@ -1,5 +1,7 @@
 package ma.demoapp.securedapi;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,7 +33,7 @@ public class ApiController {
 	@RequestMapping(method = RequestMethod.POST,value = "/users/add" , produces = MediaType.APPLICATION_JSON_VALUE,
 			consumes = MediaType.APPLICATION_JSON_VALUE)
 	public User addUser(@RequestBody User user) {
-		System.out.println(user.getUsername()+" "+user.getPassword()+" "+user.getDate());
+		System.out.println(user.getUsername()+" "+user.getPassword());
 		userService.addUser(user);
 		return user;
 	}
@@ -39,5 +41,10 @@ public class ApiController {
 	@RequestMapping(method = RequestMethod.GET, value="/users/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public User getUser(@PathVariable String username) {
 		return userService.getUser(username);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value="/users", produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<User> getUser() {
+		return userService.getUsers();
 	}
 }

@@ -4,8 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -13,6 +11,8 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+
+import ma.demoapp.metier.UserService;
 
 public class Oauh2Config {
 
@@ -23,6 +23,9 @@ public class Oauh2Config {
 		@Autowired
 		private AuthenticationManager authenticationManager;
 
+		@Autowired
+		private UserService userService;
+
 		@Override
 		public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
 			security.checkTokenAccess("isAuthenticated()");
@@ -31,20 +34,20 @@ public class Oauh2Config {
 		@Override
 		public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
 			clients.inMemory()
-					.withClient("my-trusted-client")
-					.secret("secret")
-					.scopes("read", "write", "trust")
-					.accessTokenValiditySeconds(5000)
-					.authorizedGrantTypes("authorization_code")
-					.authorities("ROLE_CLIENT", "ROLE_TRUSTED_CLIENT","ROLE_ADMIN")
-					.resourceIds("oauth2-resource");
+				.withClient("client")
+				.secret("secret")
+				.scopes("read", "write", "trust")
+				.accessTokenValiditySeconds(5000)
+				.authorizedGrantTypes("authorization_code")
+				.authorities("ROLE_ADMIN","ROLE_TRUSTED_CLIENT","ROLE_USER");
 		}
 
 		@Override
 		public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-			endpoints.authenticationManager(authenticationManager);
+			endpoints.userDetailsService(userService)
+				.authenticationManager(authenticationManager);
 		}
-		
+
 	}
 
 	@Configuration
@@ -53,36 +56,17 @@ public class Oauh2Config {
 		@Override
 		public void configure(HttpSecurity http) throws Exception {
 			http.authorizeRequests()
-				.antMatchers("/login")
-				.permitAll()
-				.and()
-				.authorizeRequests()
-				.antMatchers("/private","/private/**")
-				.hasRole("ADMIN")
-				.and()
-				.formLogin()
-				.loginPage("/login")
-				.usernameParameter("username")
-				.passwordParameter("password");
-		}
-		
-		
-	}
-
-	@Configuration
-	@EnableWebSecurity
-	public static class WebSecurity extends WebSecurityConfigurerAdapter {
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			http.authorizeRequests()
 				.antMatchers("/")
 				.permitAll()
 				.and()
 				.authorizeRequests()
-				.anyRequest()
-				.hasAnyRole("ROLE_CLIENT", "ROLE_TRUSTED_CLIENT");
+				.antMatchers("/private")
+				.authenticated()
+				.and()
+				.authorizeRequests()
+				.antMatchers("/users/**")
+				.authenticated();
 		}
-		
 	}
 
 }
