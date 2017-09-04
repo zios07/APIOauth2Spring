@@ -82,7 +82,7 @@ public class Oauh2Config {
 	@Configuration
 	@EnableWebSecurity
 	public static class WebSecurity extends WebSecurityConfigurerAdapter {
-		
+		 
 		public static final String REDIRECT_URI = "http://localhost:8080/oauth/token?client_id=client&secret=secret&"
 				+ "grant_type=authorization_code&redirect_uri=localhost:8080&code=xx";
 		public static final String SUCCESS_URI = "/oauth/authorize?client_id=client&secret=secret&response_type=code&"
