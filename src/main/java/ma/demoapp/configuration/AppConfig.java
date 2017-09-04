@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.web.servlet.view.InternalResourceViewResolver;
+import org.springframework.web.servlet.view.JstlView;
 
 @Configuration
 public class AppConfig {
@@ -39,7 +41,7 @@ public class AppConfig {
 //	public InternalResourceViewResolver viewResolver() {
 //		InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
 //		viewResolver.setViewClass(JstlView.class);
-//		viewResolver.setPrefix("/resources/pages");
+//		viewResolver.setPrefix("/WEB-INF/pages/");
 //		viewResolver.setSuffix(".jsp");
 //		return viewResolver;
 //	}
